@@ -26,11 +26,8 @@ CPlateRecognize pr;
     int currentCameraIndex;
 }
 
-@property (strong, nonatomic) CIContext *context;
-@property (assign, nonatomic) CGImageRef imgRef;
-@property (strong, nonatomic) UIImage *uiImage;
-@property (strong, nonatomic) UIImage *subImage;
-@property (strong, nonatomic) CIImage *ciImage;
+@property (nonatomic, strong) NSString *resultMsg;
+@property (nonatomic, assign) NSUInteger resultCount;
 
 @end
 
@@ -48,13 +45,6 @@ CPlateRecognize pr;
 {
     //only portrait orientation
     return UIInterfaceOrientationMaskPortrait;
-}
-
-- (CIContext *)context{
-    if(_context == NULL ) {
-        _context = [CIContext contextWithOptions:nil];
-    }
-    return _context;
 }
 
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -348,60 +338,58 @@ CPlateRecognize pr;
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
       fromConnection:(AVCaptureConnection *)connection
 {
-    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    if (imageBuffer) {
-        CFRetain(imageBuffer);
-        // Lock the image buffer
-        CVPixelBufferLockBaseAddress(imageBuffer,0);
-        
-        self.ciImage = nil;
-        self.ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
-        
-        self.imgRef = nil;
-        self.imgRef = [self.context createCGImage:self.ciImage
-                                         fromRect:CGRectMake(0, 0, CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer))];
-        
-        CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
-        CVPixelBufferRelease(imageBuffer);
-        imageBuffer = nil;
-        
-        self.uiImage = [UIImage imageWithCGImage:self.imgRef];
-        self.subImage = [self.uiImage getSubImage:CGRectMake(160, 120, 320, 240)];
-        self.uiImage = nil;
-        source_image=[UIImageCVMatConverter cvMatFromUIImage:self.subImage];
-        self.subImage = nil;
-        CGImageRelease(self.imgRef);
-        
-        vector<CPlate> plateVec;
-        double t=cv::getTickCount();
-        int result = pr.plateRecognize(source_image, plateVec);
-        t=cv::getTickCount()-t;
-        NSLog(@"time %f",t*1000/cv::getTickFrequency());
-        
-        if (result != 0) cout << "result:" << result << endl;
-        if(plateVec.size()==0){
-            [SVProgressHUD dismiss];
-            [self.textLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"No Plate"] waitUntilDone:NO];
-            
-        }else {
-            string name=plateVec[0].getPlateStr();
-            NSString *resultMessage = [NSString stringWithCString:plateVec[0].getPlateStr().c_str()
-                                                         encoding:NSUTF8StringEncoding];
-            cout << "plateRecognize: " << resultMessage << endl;
-            if (7 == resultMessage.length) {
-                [self.textLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@",resultMessage] waitUntilDone:NO];
+    CVImageBufferRef imageBuffer =  CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    
+    uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    
+    Mat img=Mat((int)height,(int)width,CV_8UC4,baseAddress);
+    
+    cvtColor(img, RGB, COLOR_BGRA2RGB);
+    
+    vector<CPlate> plateVec;
+    double t=cv::getTickCount();
+    
+    pr.plateRecognize(RGB, plateVec);
+    t=cv::getTickCount()-t;
+    NSLog(@"time %f",t*1000/cv::getTickFrequency());
+    
+    if(0 != plateVec.size()){
+        NSString *tempResultStr = [NSString stringWithCString:plateVec[0].getPlateStr().c_str()
+                                                     encoding:NSUTF8StringEncoding];
+        if (7 == tempResultStr.length) {
+            if ([self.resultMsg isEqualToString:tempResultStr]) {
+                self.resultCount++;
+            } else {
+                self.resultCount = self.resultCount > 5 ? 0 : self.resultCount--;
+                self.resultMsg = tempResultStr;
+            }
+            if (![self.textLabel.text isEqualToString:self.resultMsg]) {
+                if (self.resultCount > 5) {
+                    [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                                     withObject:[NSString stringWithFormat:@"%@",self.resultMsg]
+                                                  waitUntilDone:NO];
+                } else {
+                    [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                                     withObject:[NSString stringWithFormat:@"--"]
+                                                  waitUntilDone:NO];
+                }
             }
         }
-        
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [self showVideoThread];
-        });
     }
+    
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [self showVideoThread];
+    });
 }
 
 -(void)showVideoThread
 {
-    imageView.image=[UIImageCVMatConverter UIImageFromCVMat:source_image];
+    imageView.image=[UIImageCVMatConverter UIImageFromCVMat:RGB];
 }
 
 

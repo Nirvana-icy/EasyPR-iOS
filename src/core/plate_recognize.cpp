@@ -219,8 +219,13 @@ int CPlateRecognize::plateRecognize(Mat src, std::vector<CPlate> &plateVecOut, i
 int CPlateRecognize::plateRecognize(Mat src, std::vector<CPlate> &plateVecOut, int img_index) {
 
   std::vector<CPlate> plateVec;
-
-  int resultPD = plateDetect(src, plateVec, img_index);
+    int resultPD = -1;
+    if (640 == src.rows && 480 == src.cols) {
+        Mat subMatToDetect = src(Rect(120, 160, 240, 320));
+        resultPD = plateDetect(subMatToDetect, plateVec, img_index);
+    } else {
+        resultPD = plateDetect(src, plateVec, img_index);
+    }
 
   if (resultPD == 0) {
     size_t num = plateVec.size();
