@@ -11,7 +11,6 @@
 #include "easypr.h"
 #include "easypr/util/switch.hpp"
 #include "GlobalData.hpp"
-#import "UIImage+DDAdditions.h"
 
 using namespace easypr;
 CPlateRecognize pr;

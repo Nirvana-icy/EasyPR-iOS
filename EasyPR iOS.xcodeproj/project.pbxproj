@@ -57,7 +57,6 @@
 		53EBCCFE1A7B447A002F67C1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFA1A7B447A002F67C1 /* UIKit.framework */; };
 		53EBCCFF1A7B447A002F67C1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFB1A7B447A002F67C1 /* Foundation.framework */; };
 		53EBCD001A7B447A002F67C1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFC1A7B447A002F67C1 /* CoreGraphics.framework */; };
-		E00D1AB71DDAA63400128617 /* UIImage+DDAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -124,8 +123,6 @@
 		53EBCCFA1A7B447A002F67C1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		53EBCCFB1A7B447A002F67C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		53EBCCFC1A7B447A002F67C1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		E00D1AB51DDAA63400128617 /* UIImage+DDAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+DDAdditions.h"; sourceTree = "<group>"; };
-		E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+DDAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,8 +195,6 @@
 			children = (
 				53224D9F1D7BDECB00F92C8B /* VideoProcess.h */,
 				53224DA01D7BDECB00F92C8B /* VideoProcess.m */,
-				E00D1AB51DDAA63400128617 /* UIImage+DDAdditions.h */,
-				E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */,
 			);
 			path = VideoCamera;
 			sourceTree = "<group>";
@@ -446,7 +441,6 @@
 				53224DA11D7BDECB00F92C8B /* VideoProcess.m in Sources */,
 				53804AB01D72D0F8007C2D7E /* params.cpp in Sources */,
 				53804AB41D72D0F8007C2D7E /* plate_locate.cpp in Sources */,
-				E00D1AB71DDAA63400128617 /* UIImage+DDAdditions.m in Sources */,
 				53224D801D7BBE0F00F92C8B /* erfilter.cpp in Sources */,
 				53804AB21D72D0F8007C2D7E /* plate_detect.cpp in Sources */,
 			);
