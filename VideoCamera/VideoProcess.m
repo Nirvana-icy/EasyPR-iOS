@@ -111,7 +111,7 @@
         
         AVCaptureConnection *videoConnection = [dataOutput connectionWithMediaType:AVMediaTypeVideo];
         videoConnection.videoOrientation = AVCaptureVideoOrientationPortrait;  
-        videoConnection.videoMinFrameDuration = CMTimeMake(1, 18);
+        videoConnection.videoMinFrameDuration = CMTimeMake(1, 30);
         
         [self.m_avSession startRunning];
     }

@@ -57,6 +57,7 @@
 		53EBCCFE1A7B447A002F67C1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFA1A7B447A002F67C1 /* UIKit.framework */; };
 		53EBCCFF1A7B447A002F67C1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFB1A7B447A002F67C1 /* Foundation.framework */; };
 		53EBCD001A7B447A002F67C1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EBCCFC1A7B447A002F67C1 /* CoreGraphics.framework */; };
+		E00D1AB71DDAA63400128617 /* UIImage+DDAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -123,6 +124,8 @@
 		53EBCCFA1A7B447A002F67C1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		53EBCCFB1A7B447A002F67C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		53EBCCFC1A7B447A002F67C1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		E00D1AB51DDAA63400128617 /* UIImage+DDAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+DDAdditions.h"; sourceTree = "<group>"; };
+		E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+DDAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +198,8 @@
 			children = (
 				53224D9F1D7BDECB00F92C8B /* VideoProcess.h */,
 				53224DA01D7BDECB00F92C8B /* VideoProcess.m */,
+				E00D1AB51DDAA63400128617 /* UIImage+DDAdditions.h */,
+				E00D1AB61DDAA63400128617 /* UIImage+DDAdditions.m */,
 			);
 			path = VideoCamera;
 			sourceTree = "<group>";
@@ -360,6 +365,7 @@
 				TargetAttributes = {
 					53EBCCCB1A7B445E002F67C1 = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = 8EU8JYVH3S;
 					};
 				};
 			};
@@ -440,6 +446,7 @@
 				53224DA11D7BDECB00F92C8B /* VideoProcess.m in Sources */,
 				53804AB01D72D0F8007C2D7E /* params.cpp in Sources */,
 				53804AB41D72D0F8007C2D7E /* plate_locate.cpp in Sources */,
+				E00D1AB71DDAA63400128617 /* UIImage+DDAdditions.m in Sources */,
 				53224D801D7BBE0F00F92C8B /* erfilter.cpp in Sources */,
 				53804AB21D72D0F8007C2D7E /* plate_detect.cpp in Sources */,
 			);
@@ -549,6 +556,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 8EU8JYVH3S;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = .;
 				GCC_PREFIX_HEADER = "";
@@ -561,7 +569,7 @@
 				INFOPLIST_FILE = "EasyPR iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.v5.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jinglong.bi.EasyPR-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -572,6 +580,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 8EU8JYVH3S;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = .;
 				GCC_PREFIX_HEADER = "";
@@ -583,7 +592,7 @@
 				);
 				INFOPLIST_FILE = "EasyPR iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.v5.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jinglong.bi.EasyPR-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};

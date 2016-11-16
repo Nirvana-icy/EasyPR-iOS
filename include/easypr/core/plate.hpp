@@ -129,13 +129,16 @@ namespace easypr {
     {
       return (m_score < plate.m_score);
     }
-
+    
   private:
     //! plate mat
     Mat m_plateMat;
 
     //! plate rect
     RotatedRect m_platePos;
+      
+    //! plate likely
+    double m_score;
 
     //! plate license
     String m_plateStr;
@@ -146,8 +149,7 @@ namespace easypr {
     //! plate color type
     Color m_plateColor;
 
-    //! plate likely
-    double m_score;
+    
 
     //! avg ostu level
     double m_ostuLevel;
