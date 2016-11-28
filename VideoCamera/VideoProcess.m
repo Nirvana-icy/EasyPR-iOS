@@ -47,24 +47,30 @@
             break;
         }
     }
- 
-    if ( ! captureDevice)
+    
+    if (!captureDevice)
     {
         captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     }
-    if (!captureDevice.position == AVCaptureDevicePositionFront){
+    if (captureDevice.position != AVCaptureDevicePositionFront){
         [captureDevice lockForConfiguration:&error];
         
-        [captureDevice setExposureMode:AVCaptureExposureModeLocked];
-        [captureDevice setFocusMode:AVCaptureFocusModeLocked];
-        [captureDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeLocked];
+        if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+            [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        }
+        if([captureDevice isFocusPointOfInterestSupported]) {
+            [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        if ([captureDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]) {
+            [captureDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+        }
         [captureDevice unlockForConfiguration];
+        captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
     }
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice
                                                                               error:&error];
     if ([avSession canAddInput:deviceInput])
     {
-        NSLog(@"avSession input added");
         [avSession addInput:deviceInput];
         
         //< Output Buffer
@@ -86,11 +92,10 @@
             default:
                 break;
         }
- 
+        
         if ([avSession canAddOutput:dataOutput])
         {
             [avSession addOutput:dataOutput];
-            NSLog(@"avSession output added");
         }
     }
     
@@ -110,8 +115,7 @@
         //   [dataOutput setSampleBufferDelegate:self queue:queue];
         
         AVCaptureConnection *videoConnection = [dataOutput connectionWithMediaType:AVMediaTypeVideo];
-        videoConnection.videoOrientation = AVCaptureVideoOrientationPortrait;  
-        videoConnection.videoMinFrameDuration = CMTimeMake(1, 30);
+        videoConnection.videoOrientation = AVCaptureVideoOrientationPortrait;
         
         [self.m_avSession startRunning];
     }

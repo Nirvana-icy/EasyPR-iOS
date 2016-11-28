@@ -34,11 +34,7 @@ void er_show(std::vector<Mat> &channels, std::vector<std::vector<text::ERStat> >
                   Scalar(255), 0, Scalar(er.level), Scalar(0), flags);
       }
     }
-    char buff[10]; char *buff_ptr = buff;
-    sprintf(buff, "channel %d", c);
-//    imshow(buff_ptr, dst);
   }
-//  waitKey(-1);
 }
 
 int CPlateRecognize::plateRecognizeAsTextNM(Mat src, std::vector<CPlate> &licenseVec) {
@@ -132,38 +128,13 @@ int CPlateRecognize::plateRecognize(Mat src, std::vector<CPlate> &plateVecOut, i
       CPlate item = plateVec.at(j);
       Mat plateMat = item.getPlateMat();
 
-      if (0) {
-        imshow("plate", plateMat);
-        waitKey(0);
-        destroyWindow("plate");
-      }
-     
-      Color color = item.getPlateColor();
-      if (color == UNKNOWN) {
-        color = getPlateType(plateMat, true);
-        item.setPlateColor(color);
-      }
-
-      std::string plateColor = getPlateColor(color);
-      if (0) {
-        std::cout << "plateColor:" << plateColor << std::endl;
-      }
-
       std::string plateIdentify = "";
       int resultCR = charsRecognise(item, plateIdentify);
            
       if (resultCR == 0) {
-        std::string license = plateColor + ":" + plateIdentify;
+        std::string license = plateIdentify;
         item.setPlateStr(license);
         plateVecOut.push_back(item);
-      }
-      else {
-        std::string license = plateColor;
-        item.setPlateStr(license);
-        plateVecOut.push_back(item);
-        if (0) {
-          std::cout << "resultCR:" << resultCR << std::endl;
-        }
       }
     }
 
@@ -217,51 +188,34 @@ int CPlateRecognize::plateRecognize(Mat src, std::vector<CPlate> &plateVecOut, i
 }
 
 int CPlateRecognize::plateRecognize(Mat src, std::vector<CPlate> &plateVecOut, int img_index) {
-
-  std::vector<CPlate> plateVec;
+    std::vector<CPlate> plateVec;
     int resultPD = -1;
-    if (640 == src.rows && 480 == src.cols) {
-        Mat subMatToDetect = src(Rect(120, 160, 240, 320));
-        resultPD = plateDetect(subMatToDetect, plateVec, img_index);
-    } else {
-        resultPD = plateDetect(src, plateVec, img_index);
+    resultPD = plateDetect(src, plateVec, img_index);
+    
+    if (resultPD == 0) {
+        size_t num = plateVec.size();
+        
+        for (size_t j = 0; j < num; j++) {
+            CPlate item = plateVec.at(j);
+            Mat plateMat = item.getPlateMat();
+            
+            cout << "m_score: " << item.getPlateScore() << endl;
+            
+            if(item.getPlateScore() < -0.9) {
+                resultPD = EASYPR_PLATE_RECOGNIZING;  //车牌识别中
+                std::string plateIdentify = "";
+                int resultCR = charsRecognise(item, plateIdentify);
+                cout << "plateIdentify: " << plateIdentify << endl;
+                if (resultCR == 0) {
+                    std::string license = /*plateColor + ":" + */plateIdentify;
+                    item.setPlateStr(license);
+                    plateVecOut.push_back(item);
+                }
+            } else {
+                resultPD = EASYPR_PLATE_DETECTING;  //车牌搜寻中
+            }
+        }
     }
-
-  if (resultPD == 0) {
-    size_t num = plateVec.size();
-
-      for (size_t j = 0; j < num; j++) {
-          CPlate item = plateVec.at(j);
-          Mat plateMat = item.getPlateMat();
-          
-          //      Color color = item.getPlateColor();
-          //      if (color == UNKNOWN) {
-          //        color = getPlateType(plateMat, true);
-          //        item.setPlateColor(color);
-          //      }
-          //
-          //      std::string plateColor = getPlateColor(color);
-          
-          cout << "m_score: " << item.getPlateScore() << endl;
-          
-          if(item.getPlateScore() < -1) {
-              
-              std::string plateIdentify = "";
-              int resultCR = charsRecognise(item, plateIdentify);
-              cout << "plateIdentify: " << plateIdentify << endl;
-              if (resultCR == 0) {
-                  std::string license = /*plateColor + ":" + */plateIdentify;
-                  item.setPlateStr(license);
-                  plateVecOut.push_back(item);
-              }
-              //      else {
-              //        std::string license = plateColor;
-              //        item.setPlateStr(license);
-              //        plateVecOut.push_back(item);
-              //      }
-          }
-      }
-  }
     return resultPD;
 }
 

@@ -27,6 +27,7 @@ CPlateRecognize pr;
 
 @property (nonatomic, strong) NSString *resultMsg;
 @property (nonatomic, assign) NSUInteger resultCount;
+@property (nonatomic, assign) BOOL isAdustingFocus;
 
 @end
 
@@ -205,8 +206,6 @@ CPlateRecognize pr;
     NSString* bundlePath=[[NSBundle mainBundle] bundlePath];
     std::string mainPath=[bundlePath UTF8String];
     GlobalData::mainBundle()=mainPath;
-    
-    cout << "test_plate_recognize" << endl;
    
     pr.setLifemode(true);
     pr.setDebug(false);
@@ -221,13 +220,7 @@ CPlateRecognize pr;
     imageView.contentMode=UIViewContentModeScaleAspectFit;
     imageView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:imageView];
-//    textView = [[UIImageView alloc] init];
-//    textView.frame = CGRectMake(20, 0, 100, 30);
-//    textView.contentMode=UIViewContentModeScaleAspectFit;
-//    textView.backgroundColor = [UIColor redColor];
-//    [self.view addSubview:textView];
-//    [self.view bringSubviewToFront:textView];
-    /* Add the fps Label */
+
     UILabel *fps = [[UILabel alloc] initWithFrame:CGRectMake(20, 120, 180, 20)];
     fps.font=[UIFont fontWithName:@"华文细黑" size:14.0f];
     
@@ -345,45 +338,57 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     size_t height = CVPixelBufferGetHeight(imageBuffer);
     
     Mat img=Mat((int)height,(int)width,CV_8UC4,baseAddress);
-    
     cvtColor(img, RGB, COLOR_BGRA2RGB);
-    
     vector<CPlate> plateVec;
-    double t=cv::getTickCount();
     
-    pr.plateRecognize(RGB, plateVec);
-    t=cv::getTickCount()-t;
-    NSLog(@"time %f",t*1000/cv::getTickFrequency());
-    
-    if(0 != plateVec.size()){
-        NSString *tempResultStr = [NSString stringWithCString:plateVec[0].getPlateStr().c_str()
-                                                     encoding:NSUTF8StringEncoding];
-        if (7 == tempResultStr.length) {
-            if ([self.resultMsg isEqualToString:tempResultStr]) {
-                self.resultCount++;
-            } else {
-                self.resultCount = self.resultCount > 5 ? 0 : self.resultCount--;
-                self.resultMsg = tempResultStr;
-            }
-            if (![self.textLabel.text isEqualToString:self.resultMsg]) {
-                if (self.resultCount > 5) {
-                    [self.textLabel performSelectorOnMainThread:@selector(setText:)
-                                                     withObject:[NSString stringWithFormat:@"%@",self.resultMsg]
-                                                  waitUntilDone:NO];
+    if (self.isAdustingFocus) {
+        [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                         withObject:[NSString stringWithFormat:@"自动对焦中..."]
+                                      waitUntilDone:NO];
+    } else {
+#ifdef DEBUG
+        double t=cv::getTickCount();
+#endif
+        int resultPD = pr.plateRecognize(RGB, plateVec);
+        if (EASYPR_PLATE_DETECTING == resultPD) {
+            [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                             withObject:[NSString stringWithFormat:@"寻找车牌中..."]
+                                          waitUntilDone:NO];
+        }
+#ifdef DEBUG
+        t=cv::getTickCount()-t;
+        NSLog(@"time %f",t*1000/cv::getTickFrequency());
+#endif
+        if(0 != plateVec.size()){
+            NSString *tempResultStr = [NSString stringWithCString:plateVec[0].getPlateStr().c_str()
+                                                         encoding:NSUTF8StringEncoding];
+            if (7 == tempResultStr.length) {
+                if ([self.resultMsg isEqualToString:tempResultStr]) {
+                    self.resultCount++;
                 } else {
-                    [self.textLabel performSelectorOnMainThread:@selector(setText:)
-                                                     withObject:[NSString stringWithFormat:@"--"]
-                                                  waitUntilDone:NO];
+                    self.resultCount = self.resultCount > 2 ? 0 : self.resultCount--;
+                    self.resultMsg = tempResultStr;
+                }
+                if (![self.textLabel.text isEqualToString:self.resultMsg]) {
+                    if (self.resultCount > 2) {
+                        [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                                         withObject:[NSString stringWithFormat:@"确认车牌...%@", self.resultMsg ? self.resultMsg : @""]
+                                                      waitUntilDone:NO];
+                    } else {
+                        [self.textLabel performSelectorOnMainThread:@selector(setText:)
+                                                         withObject:[NSString stringWithFormat:@"车牌识别中...%@", self.resultMsg ? self.resultMsg : @""]
+                                                      waitUntilDone:NO];
+                    }
                 }
             }
         }
     }
-    
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     
     dispatch_sync(dispatch_get_main_queue(), ^{
         [self showVideoThread];
     });
+
 }
 
 -(void)showVideoThread
@@ -396,6 +401,29 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - Get Auto Focus Event
+// callback
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if( [keyPath isEqualToString:@"adjustingFocus"] ){
+        self.isAdustingFocus = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
+    }
+}
+
+// register observer
+- (void)viewWillAppear:(BOOL)animated{
+    self.isAdustingFocus = YES;
+    AVCaptureDevice *camDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    int flags = NSKeyValueObservingOptionNew;
+    [camDevice addObserver:self forKeyPath:@"adjustingFocus" options:flags context:nil];
+}
+
+// unregister observer
+- (void)viewWillDisappear:(BOOL)animated{
+    AVCaptureDevice *camDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    [camDevice removeObserver:self forKeyPath:@"adjustingFocus"];
 }
 
 @end

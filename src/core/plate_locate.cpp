@@ -109,54 +109,54 @@ int CPlateLocate::mserSearch(const Mat &src,  vector<Mat> &out,
 
 int CPlateLocate::colorSearch(const Mat &src, const Color r, Mat &out,
                               vector<RotatedRect> &outRects) {
-  Mat match_grey;
-
-  // width is important to the final results;
-
-  const int color_morph_width = 10;
-  const int color_morph_height = 2;
-
-  colorMatch(src, match_grey, r, false);
-
-  //if (m_debug) {
-  //  utils::imwrite("resources/image/tmp/match_grey.jpg", match_grey);
-  //}
-
-  Mat src_threshold;
-  threshold(match_grey, src_threshold, 0, 255,
-            CV_THRESH_OTSU + CV_THRESH_BINARY);
-
-  Mat element = getStructuringElement(
-      MORPH_RECT, Size(color_morph_width, color_morph_height));
-  morphologyEx(src_threshold, src_threshold, MORPH_CLOSE, element);
-
-  //if (m_debug) {
-  //  utils::imwrite("resources/image/tmp/color.jpg", src_threshold);
-  //}
-
-  src_threshold.copyTo(out);
-
-
-  vector<vector<Point>> contours;
-
-  findContours(src_threshold,
-               contours,               // a vector of contours
-               CV_RETR_EXTERNAL,
-               CV_CHAIN_APPROX_NONE);  // all pixels of each contours
-
-  vector<vector<Point>>::iterator itc = contours.begin();
-  while (itc != contours.end()) {
-    RotatedRect mr = minAreaRect(Mat(*itc));
-
-    if (!verifySizes(mr))
-      itc = contours.erase(itc);
-    else {
-      ++itc;
-      outRects.push_back(mr);
+    Mat match_grey;
+    
+    // width is important to the final results;
+    
+    const int color_morph_width = 10;
+    const int color_morph_height = 2;
+    
+    colorMatch(src, match_grey, r, false);
+    
+    //if (m_debug) {
+    //  utils::imwrite("resources/image/tmp/match_grey.jpg", match_grey);
+    //}
+    
+    Mat src_threshold;
+    threshold(match_grey, src_threshold, 0, 255,
+              CV_THRESH_OTSU + CV_THRESH_BINARY);
+    
+    Mat element = getStructuringElement(
+                                        MORPH_RECT, Size(color_morph_width, color_morph_height));
+    morphologyEx(src_threshold, src_threshold, MORPH_CLOSE, element);
+    
+    //if (m_debug) {
+    //  utils::imwrite("resources/image/tmp/color.jpg", src_threshold);
+    //}
+    
+    src_threshold.copyTo(out);
+    
+    
+    vector<vector<Point>> contours;
+    
+    findContours(src_threshold,
+                 contours,               // a vector of contours
+                 CV_RETR_EXTERNAL,
+                 CV_CHAIN_APPROX_NONE);  // all pixels of each contours
+    
+    vector<vector<Point>>::iterator itc = contours.begin();
+    while (itc != contours.end()) {
+        RotatedRect mr = minAreaRect(Mat(*itc));
+        
+        if (!verifySizes(mr))
+            itc = contours.erase(itc);
+        else {
+            ++itc;
+            outRects.push_back(mr);
+        }
     }
-  }
-
-  return 0;
+    
+    return 0;
 }
 
 

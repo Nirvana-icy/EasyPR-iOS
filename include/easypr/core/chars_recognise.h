@@ -19,6 +19,12 @@
 #include "easypr/core/plate.hpp"
 #include "easypr/config.h"
 
+enum EASYPR_PLATE_RECOGNIZE_STATUES
+{
+    EASYPR_PLATE_RECOGNIZING = -2,
+    EASYPR_PLATE_DETECTING = -3
+};
+
 namespace easypr {
 
 class CCharsRecognise {
